@@ -59,5 +59,7 @@ test("buildReaderHtml embeds escaped JSON payload", () => {
   );
 
   assert.match(html, /id="reader-data"/);
+  assert.match(html, /class="source-section"/);
+  assert.match(html, /class="stream"/);
   assert.doesNotMatch(html, /<\/script><script>alert/);
 });

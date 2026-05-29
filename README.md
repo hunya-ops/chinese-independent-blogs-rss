@@ -7,7 +7,7 @@ Aggregate recent posts from [timqian/chinese-independent-blogs](https://github.c
 The scheduled job writes static files under `public/`:
 
 - `all.xml` - aggregated RSS feed.
-- `index.html` - lightweight web reader for the aggregated posts.
+- `index.html` - Google Reader-inspired web reader for the aggregated posts.
 - `items.json` - sanitized article data used by the web reader.
 - `feeds.opml` - source feed list for RSS readers.
 - `feeds.json` - normalized source feed metadata.

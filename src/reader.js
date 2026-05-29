@@ -137,18 +137,19 @@ export function buildReaderHtml(readerItems, status) {
   <style>
     :root {
       color-scheme: light;
-      --bg: #f4f6f8;
+      --chrome: #f1f1f1;
+      --chrome-dark: #e1e5ec;
       --panel: #ffffff;
-      --panel-soft: #f8fafc;
-      --line: #d7dde5;
-      --line-strong: #b9c3cf;
-      --text: #172033;
-      --muted: #607086;
-      --muted-soft: #8491a3;
-      --accent: #2563eb;
-      --accent-soft: #e7efff;
-      --success: #14855f;
-      --shadow: 0 12px 24px rgba(23, 32, 51, 0.08);
+      --sidebar: #f7f7f7;
+      --line: #d5d9df;
+      --line-strong: #b7bec8;
+      --text: #222222;
+      --muted: #666f7a;
+      --muted-soft: #8a929d;
+      --blue: #1d5f9f;
+      --blue-soft: #e8f0fe;
+      --orange: #d66b00;
+      --green: #24875a;
     }
 
     * {
@@ -162,15 +163,15 @@ export function buildReaderHtml(readerItems, status) {
 
     body {
       margin: 0;
-      background: var(--bg);
+      background: var(--panel);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-      font-size: 15px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
       letter-spacing: 0;
     }
 
     a {
-      color: var(--accent);
+      color: var(--blue);
       text-decoration: none;
     }
 
@@ -185,39 +186,74 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     .topbar {
-      height: 54px;
+      height: 48px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      padding: 0 18px;
-      border-bottom: 1px solid var(--line);
-      background: var(--panel);
+      gap: 14px;
+      padding: 0 16px;
+      border-bottom: 1px solid #c8ccd2;
+      background: linear-gradient(#f7f7f7, #e8ebef);
     }
 
     .brand {
-      min-width: 0;
-      font-size: 17px;
-      font-weight: 700;
+      flex: 0 0 auto;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      width: 220px;
+      color: #444444;
+      font-size: 20px;
+      font-weight: 400;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .top-actions {
+    .brand strong {
+      color: #111111;
+      font-weight: 700;
+    }
+
+    .search-form {
+      flex: 1 1 auto;
+      min-width: 120px;
+      max-width: 620px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 28px;
+      padding: 0 9px;
+      border: 1px solid #aeb4bd;
+      border-radius: 2px;
+      background: #ffffff;
+      color: var(--text);
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #6a8fc4;
+      box-shadow: 0 0 0 2px rgba(29, 95, 159, 0.16);
+    }
+
+    .top-links {
+      flex: 0 0 auto;
       display: flex;
       align-items: center;
       gap: 12px;
       color: var(--muted);
-      font-size: 13px;
+      font-size: 12px;
       white-space: nowrap;
     }
 
     .reader-shell {
-      height: calc(100dvh - 54px);
+      height: calc(100dvh - 48px);
       min-height: 0;
       display: grid;
-      grid-template-columns: minmax(310px, 390px) minmax(0, 1fr);
+      grid-template-columns: 254px minmax(0, 1fr);
     }
 
     .sidebar {
@@ -226,265 +262,345 @@ export function buildReaderHtml(readerItems, status) {
       display: grid;
       grid-template-rows: auto auto minmax(0, 1fr);
       border-right: 1px solid var(--line);
-      background: var(--panel-soft);
+      background: var(--sidebar);
     }
 
-    .sidebar-controls {
-      padding: 14px;
+    .sidebar-top {
+      padding: 12px 10px 10px;
       border-bottom: 1px solid var(--line);
-      background: var(--panel);
     }
 
-    .search-input {
-      width: 100%;
-      height: 38px;
-      padding: 0 12px;
-      border: 1px solid var(--line-strong);
-      border-radius: 6px;
-      background: #ffffff;
-      color: var(--text);
-      outline: none;
-    }
-
-    .search-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-soft);
-    }
-
-    .filters {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .filter-button {
-      height: 32px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      background: #ffffff;
-      color: var(--muted);
-      cursor: pointer;
-    }
-
-    .filter-button.active {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 650;
-    }
-
-    .stats-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      padding: 9px 14px;
-      border-bottom: 1px solid var(--line);
-      color: var(--muted);
-      font-size: 12px;
-      background: #f9fbfd;
-    }
-
-    .item-list {
-      min-height: 0;
-      overflow: auto;
-    }
-
-    .item-row {
-      width: 100%;
-      min-height: 96px;
-      display: block;
-      padding: 12px 14px 11px 18px;
+    .nav-item,
+    .source-item,
+    .tool-button {
       border: 0;
-      border-bottom: 1px solid var(--line);
       background: transparent;
       color: inherit;
-      text-align: left;
       cursor: pointer;
+      text-align: left;
     }
 
-    .item-row:hover {
-      background: #eef4fb;
-    }
-
-    .item-row.active {
-      background: #ffffff;
-      box-shadow: inset 3px 0 0 var(--accent);
-    }
-
-    .item-row.read .item-title {
-      color: #566273;
-      font-weight: 500;
-    }
-
-    .item-source-line {
+    .nav-item {
+      width: 100%;
+      height: 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      min-width: 0;
-      margin-bottom: 5px;
-      color: var(--muted);
-      font-size: 12px;
+      padding: 0 8px;
+      border-radius: 2px;
+      color: #333333;
     }
 
-    .item-source {
-      min-width: 0;
+    .nav-item.active,
+    .source-item.active {
+      background: var(--blue-soft);
+      color: #174d82;
+      font-weight: 700;
+    }
+
+    .nav-count {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .sidebar-meta {
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .source-section {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 16px 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .source-list {
+      min-height: 0;
+      overflow: auto;
+      padding: 0 8px 12px;
+    }
+
+    .source-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 2px;
+      color: #394150;
+    }
+
+    .source-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .item-date {
+    .source-count {
       flex: 0 0 auto;
       color: var(--muted-soft);
+      font-size: 11px;
     }
 
-    .item-title {
-      display: -webkit-box;
-      min-height: 40px;
-      overflow: hidden;
-      color: var(--text);
-      font-weight: 700;
-      line-height: 1.35;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .item-summary {
-      display: -webkit-box;
-      margin-top: 5px;
-      overflow: hidden;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .unread-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: var(--success);
-      flex: 0 0 auto;
-    }
-
-    .item-row.read .unread-dot {
-      background: transparent;
-    }
-
-    .article-pane {
+    .content {
       min-width: 0;
       min-height: 0;
-      overflow: auto;
-      background: var(--panel);
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      background: #ffffff;
     }
 
-    .article {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 34px 38px 72px;
-    }
-
-    .article-kicker {
+    .content-titlebar {
+      min-height: 46px;
       display: flex;
-      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .view-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .view-meta {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toolbar {
+      min-height: 37px;
+      display: flex;
       align-items: center;
       gap: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .article-title {
-      margin: 10px 0 12px;
-      color: var(--text);
-      font-size: 30px;
-      line-height: 1.25;
-      font-weight: 760;
-    }
-
-    .article-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 18px 0 24px;
-      padding-bottom: 18px;
+      padding: 5px 10px;
       border-bottom: 1px solid var(--line);
+      background: var(--chrome);
     }
 
-    .action-link,
-    .action-button {
+    .tool-button,
+    .tool-link {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: 34px;
-      padding: 0 12px;
+      min-height: 26px;
+      padding: 0 10px;
       border: 1px solid var(--line-strong);
-      border-radius: 6px;
+      border-radius: 2px;
+      background: linear-gradient(#ffffff, #f1f1f1);
+      color: #333333;
+      font-size: 12px;
+      line-height: 1;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .tool-button.active {
+      border-color: #8caad2;
+      background: #dceafe;
+      color: #173f70;
+      font-weight: 700;
+    }
+
+    .tool-spacer {
+      flex: 0 0 auto;
+      width: 1px;
+      height: 20px;
+      background: var(--line);
+    }
+
+    .stream {
+      min-height: 0;
+      overflow: auto;
       background: #ffffff;
-      color: var(--text);
+    }
+
+    .entry {
+      border-bottom: 1px solid var(--line);
+      background: #ffffff;
+    }
+
+    .entry.active {
+      box-shadow: inset 3px 0 0 var(--orange);
+    }
+
+    .entry-summary {
+      width: 100%;
+      min-height: 32px;
+      display: grid;
+      grid-template-columns: 14px minmax(110px, 180px) minmax(0, 1fr) 72px;
+      align-items: center;
+      gap: 8px;
+      padding: 0 12px;
+      border: 0;
+      background: transparent;
+      color: inherit;
       cursor: pointer;
+      text-align: left;
     }
 
-    .action-link.primary {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: #ffffff;
+    .entry-summary:hover {
+      background: #f5f8fc;
     }
 
-    .article-content {
-      color: #202838;
-      font-size: 17px;
-      line-height: 1.78;
+    .entry.active .entry-summary {
+      background: #fff8e8;
+    }
+
+    .read .entry-title,
+    .read .entry-source {
+      color: #5f6670;
+      font-weight: 400;
+    }
+
+    .unread-marker {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--green);
+      justify-self: center;
+    }
+
+    .read .unread-marker {
+      background: transparent;
+    }
+
+    .entry-source,
+    .entry-title,
+    .entry-date {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .entry-source {
+      color: #27384d;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .entry-title {
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+    .entry-date {
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .entry-expanded {
+      display: none;
+      padding: 14px 20px 28px 214px;
+      border-top: 1px solid #edf0f4;
+      background: #ffffff;
+    }
+
+    .entry.active .entry-expanded {
+      display: block;
+    }
+
+    .expanded-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .expanded-title {
+      margin: 7px 0 10px;
+      font-size: 21px;
+      line-height: 1.28;
+      font-weight: 700;
+    }
+
+    .expanded-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 16px;
+    }
+
+    .entry-content {
+      max-width: 820px;
+      color: #222222;
+      font-size: 15px;
+      line-height: 1.68;
       overflow-wrap: anywhere;
     }
 
-    .article-content p,
-    .article-content ul,
-    .article-content ol,
-    .article-content blockquote,
-    .article-content pre,
-    .article-content table {
+    .entry-content p,
+    .entry-content ul,
+    .entry-content ol,
+    .entry-content blockquote,
+    .entry-content pre,
+    .entry-content table {
       margin: 0 0 1.1em;
     }
 
-    .article-content img {
+    .entry-content img {
       max-width: 100%;
       height: auto;
-      border-radius: 6px;
-      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
     }
 
-    .article-content pre {
+    .entry-content pre {
       overflow: auto;
-      padding: 14px;
-      border-radius: 6px;
+      padding: 12px;
+      border: 1px solid #2d3748;
       background: #111827;
       color: #e5e7eb;
       line-height: 1.55;
     }
 
-    .article-content code {
+    .entry-content code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 0.92em;
     }
 
-    .article-content blockquote {
+    .entry-content blockquote {
       padding-left: 16px;
       border-left: 4px solid var(--line-strong);
       color: #465366;
     }
 
-    .article-content table {
+    .entry-content table {
       width: 100%;
       border-collapse: collapse;
       font-size: 15px;
     }
 
-    .article-content th,
-    .article-content td {
+    .entry-content th,
+    .entry-content td {
       padding: 8px;
       border: 1px solid var(--line);
       vertical-align: top;
@@ -492,54 +608,78 @@ export function buildReaderHtml(readerItems, status) {
 
     .empty-state {
       color: var(--muted);
-      padding: 24px;
+      padding: 28px;
       text-align: center;
     }
 
-    @media (max-width: 840px) {
+    @media (max-width: 860px) {
       .topbar {
         height: auto;
-        min-height: 58px;
+        min-height: 82px;
         align-items: flex-start;
         flex-direction: column;
-        padding: 10px 14px;
-        gap: 6px;
+        padding: 10px 12px;
+        gap: 8px;
       }
 
-      .top-actions {
+      .brand {
         width: 100%;
+      }
+
+      .search-form {
+        width: 100%;
+        max-width: none;
+      }
+
+      .top-links {
         overflow-x: auto;
       }
 
       .reader-shell {
-        height: calc(100dvh - 86px);
+        height: calc(100dvh - 126px);
         grid-template-columns: 1fr;
-        grid-template-rows: minmax(260px, 42dvh) minmax(0, 1fr);
+        grid-template-rows: auto minmax(0, 1fr);
       }
 
       .sidebar {
+        max-height: 188px;
         border-right: 0;
         border-bottom: 1px solid var(--line);
       }
 
-      .article {
-        padding: 24px 18px 56px;
+      .sidebar-meta {
+        display: none;
       }
 
-      .article-title {
-        font-size: 24px;
+      .content-titlebar {
+        min-height: 40px;
       }
 
-      .article-content {
-        font-size: 16px;
+      .entry-summary {
+        grid-template-columns: 12px minmax(0, 1fr) 58px;
+      }
+
+      .entry-source {
+        display: none;
+      }
+
+      .entry-expanded {
+        padding: 14px 16px 26px;
+      }
+
+      .toolbar {
+        overflow-x: auto;
       }
     }
   </style>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">中文独立博客聚合</div>
-    <nav class="top-actions" aria-label="输出">
+    <div class="brand"><strong>Reader</strong><span>中文独立博客</span></div>
+    <form class="search-form" role="search">
+      <input id="search" class="search-input" type="search" autocomplete="off" placeholder="搜索所有文章">
+    </form>
+    <nav class="top-links" aria-label="输出">
       <span id="updated-at"></span>
       <a href="all.xml">RSS</a>
       <a href="feeds.opml">OPML</a>
@@ -548,30 +688,41 @@ export function buildReaderHtml(readerItems, status) {
   </header>
   <div class="reader-shell">
     <aside class="sidebar">
-      <div class="sidebar-controls">
-        <input id="search" class="search-input" type="search" autocomplete="off" placeholder="搜索文章或博客">
-        <div class="filters" role="tablist" aria-label="阅读状态">
-          <button class="filter-button active" type="button" data-filter="all">全部</button>
-          <button class="filter-button" type="button" data-filter="unread">未读</button>
-          <button class="filter-button" type="button" data-filter="read">已读</button>
-        </div>
+      <div class="sidebar-top">
+        <button class="nav-item active" type="button" data-filter="all">
+          <span>所有文章</span><span class="nav-count" id="all-count"></span>
+        </button>
+        <button class="nav-item" type="button" data-filter="unread">
+          <span>未读文章</span><span class="nav-count" id="nav-unread-count"></span>
+        </button>
+        <button class="nav-item" type="button" data-filter="read">
+          <span>已读文章</span><span class="nav-count" id="read-count"></span>
+        </button>
       </div>
-      <div class="stats-row">
-        <span id="visible-count"></span>
-        <span id="unread-count"></span>
+      <div class="sidebar-meta">
+        <div id="visible-count"></div>
+        <div id="crawl-summary"></div>
       </div>
-      <div id="item-list" class="item-list" role="listbox" aria-label="文章列表"></div>
+      <section class="source-section">
+        <div class="section-title"><span>订阅源</span><span id="source-total"></span></div>
+        <div id="source-list" class="source-list"></div>
+      </section>
     </aside>
-    <main class="article-pane" id="article-pane">
-      <article class="article">
-        <div id="article-kicker" class="article-kicker"></div>
-        <h1 id="article-title" class="article-title"></h1>
-        <div class="article-actions">
-          <a id="open-original" class="action-link primary" target="_blank" rel="noopener noreferrer">打开原文</a>
-          <button id="toggle-read" class="action-button" type="button">标记未读</button>
-        </div>
-        <div id="article-content" class="article-content"></div>
-      </article>
+    <main class="content">
+      <div class="content-titlebar">
+        <div id="view-title" class="view-title">所有文章</div>
+        <div id="view-meta" class="view-meta"></div>
+      </div>
+      <div class="toolbar">
+        <button class="tool-button active" type="button" data-filter="all">全部</button>
+        <button class="tool-button" type="button" data-filter="unread">未读</button>
+        <button class="tool-button" type="button" data-filter="read">已读</button>
+        <span class="tool-spacer"></span>
+        <button id="mark-visible-read" class="tool-button" type="button">当前列表标为已读</button>
+        <button id="toggle-active-read" class="tool-button" type="button">标记未读</button>
+        <a id="open-original" class="tool-link" target="_blank" rel="noopener noreferrer">打开原文</a>
+      </div>
+      <div id="stream" class="stream" role="list"></div>
     </main>
   </div>
   <script type="application/json" id="reader-data">${data}</script>
@@ -586,18 +737,24 @@ export function buildReaderHtml(readerItems, status) {
     let activeId = decodeURIComponent(location.hash.slice(1)) || items[0]?.id || "";
     let filter = "all";
     let query = "";
+    let sourceFilter = "";
+    let sourceFilterName = "";
 
-    const list = document.getElementById("item-list");
+    const stream = document.getElementById("stream");
     const search = document.getElementById("search");
+    const viewTitle = document.getElementById("view-title");
+    const viewMeta = document.getElementById("view-meta");
     const visibleCount = document.getElementById("visible-count");
-    const unreadCount = document.getElementById("unread-count");
+    const crawlSummary = document.getElementById("crawl-summary");
+    const allCount = document.getElementById("all-count");
+    const navUnreadCount = document.getElementById("nav-unread-count");
+    const readCount = document.getElementById("read-count");
+    const sourceTotal = document.getElementById("source-total");
+    const sourceList = document.getElementById("source-list");
     const updatedAt = document.getElementById("updated-at");
-    const articlePane = document.getElementById("article-pane");
-    const articleKicker = document.getElementById("article-kicker");
-    const articleTitle = document.getElementById("article-title");
-    const articleContent = document.getElementById("article-content");
     const openOriginal = document.getElementById("open-original");
-    const toggleRead = document.getElementById("toggle-read");
+    const markVisibleRead = document.getElementById("mark-visible-read");
+    const toggleActiveRead = document.getElementById("toggle-active-read");
 
     function persistReadItems() {
       localStorage.setItem(readKey, JSON.stringify([...readItems].slice(-5000)));
@@ -610,12 +767,32 @@ export function buildReaderHtml(readerItems, status) {
       return new Intl.DateTimeFormat("zh-CN", options).format(date);
     }
 
+    function sourceKey(item) {
+      return item.feedUrl || item.sourceUrl || item.sourceTitle || "unknown";
+    }
+
+    function sourceStats() {
+      const map = new Map();
+      for (const item of items) {
+        const key = sourceKey(item);
+        const existing = map.get(key) || {
+          key,
+          name: item.sourceTitle || "Unknown",
+          count: 0,
+        };
+        existing.count += 1;
+        map.set(key, existing);
+      }
+      return [...map.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    }
+
     function visibleItems() {
       const q = query.trim().toLowerCase();
       return items.filter((item) => {
         const isRead = readItems.has(item.id);
         if (filter === "read" && !isRead) return false;
         if (filter === "unread" && isRead) return false;
+        if (sourceFilter && sourceKey(item) !== sourceFilter) return false;
         if (!q) return true;
         return [
           item.title,
@@ -631,74 +808,147 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     function renderStats(visible) {
-      visibleCount.textContent = visible.length + " 篇";
-      unreadCount.textContent = (items.length - readItems.size) + " 未读";
+      const unread = items.length - readItems.size;
+      const filterTitles = {
+        all: "所有文章",
+        unread: "未读文章",
+        read: "已读文章",
+      };
+
+      viewTitle.textContent = sourceFilter ? sourceFilterName : filterTitles[filter];
+      allCount.textContent = String(items.length);
+      navUnreadCount.textContent = String(unread);
+      readCount.textContent = String(readItems.size);
+      visibleCount.textContent = visible.length + " 篇可见，" + unread + " 篇未读";
+      viewMeta.textContent = visible.length + " 篇";
+      crawlSummary.textContent = status.summary
+        ? status.summary.totalFeeds + " 个源，" + status.summary.outputItemCount + " 篇输出"
+        : "";
       updatedAt.textContent = status.updatedAt
         ? "更新 " + formatDate(status.updatedAt, { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" })
         : "";
+      toggleActiveRead.textContent = readItems.has(activeId) ? "标记未读" : "标记已读";
     }
 
-    function renderList() {
+    function setActiveClasses() {
+      document.querySelectorAll("[data-filter]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.filter === filter);
+      });
+      document.querySelectorAll(".source-item").forEach((button) => {
+        button.classList.toggle("active", button.dataset.source === sourceFilter);
+      });
+    }
+
+    function renderSources() {
+      const stats = sourceStats();
+      sourceTotal.textContent = String(stats.length);
+      const fragment = document.createDocumentFragment();
+
+      const allSources = document.createElement("button");
+      allSources.type = "button";
+      allSources.className = "source-item";
+      allSources.dataset.source = "";
+      const allName = document.createElement("span");
+      allName.className = "source-name";
+      allName.textContent = "全部订阅源";
+      const allSourceCount = document.createElement("span");
+      allSourceCount.className = "source-count";
+      allSourceCount.textContent = String(items.length);
+      allSources.append(allName, allSourceCount);
+      fragment.append(allSources);
+
+      for (const source of stats) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "source-item";
+        button.dataset.source = source.key;
+
+        const name = document.createElement("span");
+        name.className = "source-name";
+        name.textContent = source.name;
+
+        const count = document.createElement("span");
+        count.className = "source-count";
+        count.textContent = String(source.count);
+
+        button.append(name, count);
+        fragment.append(button);
+      }
+
+      sourceList.replaceChildren(fragment);
+      setActiveClasses();
+    }
+
+    function renderStream() {
       const visible = visibleItems();
       const fragment = document.createDocumentFragment();
 
       for (const item of visible) {
-        const row = document.createElement("button");
-        row.type = "button";
-        row.className = "item-row";
-        row.dataset.id = item.id;
-        row.setAttribute("role", "option");
-        row.setAttribute("aria-selected", item.id === activeId ? "true" : "false");
-        if (item.id === activeId) row.classList.add("active");
-        if (readItems.has(item.id)) row.classList.add("read");
+        const entry = document.createElement("article");
+        entry.className = "entry";
+        entry.dataset.id = item.id;
+        entry.setAttribute("role", "listitem");
+        if (item.id === activeId) entry.classList.add("active");
+        if (readItems.has(item.id)) entry.classList.add("read");
 
-        const sourceLine = document.createElement("div");
-        sourceLine.className = "item-source-line";
+        const header = document.createElement("button");
+        header.type = "button";
+        header.className = "entry-summary";
+        header.dataset.id = item.id;
+
+        const dot = document.createElement("span");
+        dot.className = "unread-marker";
 
         const source = document.createElement("span");
-        source.className = "item-source";
-        const dot = document.createElement("span");
-        dot.className = "unread-dot";
-        source.append(dot, " ", item.sourceTitle || "Unknown");
+        source.className = "entry-source";
+        source.textContent = item.sourceTitle || "Unknown";
 
-        const date = document.createElement("span");
-        date.className = "item-date";
-        date.textContent = formatDate(item.publishedAt, { month: "2-digit", day: "2-digit" });
-
-        const title = document.createElement("div");
-        title.className = "item-title";
+        const title = document.createElement("span");
+        title.className = "entry-title";
         title.textContent = item.title;
 
-        const summary = document.createElement("div");
-        summary.className = "item-summary";
-        summary.textContent = item.summary;
+        const date = document.createElement("span");
+        date.className = "entry-date";
+        date.textContent = formatDate(item.publishedAt, { month: "2-digit", day: "2-digit" });
 
-        sourceLine.append(source, date);
-        row.append(sourceLine, title, summary);
-        fragment.append(row);
+        header.append(dot, source, title, date);
+        entry.append(header);
+
+        if (item.id === activeId) {
+          entry.append(renderExpanded(item));
+        }
+
+        fragment.append(entry);
       }
 
-      list.replaceChildren(fragment);
+      stream.replaceChildren(fragment);
       renderStats(visible);
+      setActiveClasses();
 
-      if (!byId.has(activeId) && visible[0]) {
-        selectItem(visible[0].id, false);
-      } else if (visible.length === 0) {
-        articleKicker.textContent = "";
-        articleTitle.textContent = "没有可显示的文章";
-        articleContent.innerHTML = '<p class="empty-state">调整搜索或阅读状态。</p>';
+      if (visible.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "没有可显示的文章";
+        stream.replaceChildren(empty);
         openOriginal.removeAttribute("href");
+      } else if (!visible.some((item) => item.id === activeId)) {
+        selectItem(visible[0].id, false);
       }
     }
 
-    function appendKickerPart(node) {
-      if (articleKicker.childNodes.length > 0) {
-        articleKicker.append(document.createTextNode(" / "));
+    function appendMetaPart(container, node) {
+      if (container.childNodes.length > 0) {
+        container.append(document.createTextNode(" / "));
       }
-      articleKicker.append(node);
+      container.append(node);
     }
 
-    function renderArticle(item) {
+    function renderExpanded(item) {
+      const expanded = document.createElement("div");
+      expanded.className = "entry-expanded";
+
+      const meta = document.createElement("div");
+      meta.className = "expanded-meta";
       const published = formatDate(item.publishedAt, {
         year: "numeric",
         month: "2-digit",
@@ -707,24 +957,54 @@ export function buildReaderHtml(readerItems, status) {
         minute: "2-digit",
       });
 
-      articleKicker.replaceChildren();
       if (item.sourceUrl) {
         const sourceLink = document.createElement("a");
         sourceLink.href = item.sourceUrl;
         sourceLink.target = "_blank";
         sourceLink.rel = "noopener noreferrer";
         sourceLink.textContent = item.sourceTitle || "Unknown";
-        appendKickerPart(sourceLink);
+        appendMetaPart(meta, sourceLink);
       } else if (item.sourceTitle) {
-        appendKickerPart(document.createTextNode(item.sourceTitle));
+        appendMetaPart(meta, document.createTextNode(item.sourceTitle));
       }
-      if (item.author) appendKickerPart(document.createTextNode(item.author));
-      if (published) appendKickerPart(document.createTextNode(published));
-      articleTitle.textContent = item.title;
-      articleContent.innerHTML = item.contentHtml || '<p class="empty-state">这篇文章没有可显示的正文。</p>';
+      if (item.author) appendMetaPart(meta, document.createTextNode(item.author));
+      if (published) appendMetaPart(meta, document.createTextNode(published));
+
+      const title = document.createElement("h1");
+      title.className = "expanded-title";
+      title.textContent = item.title;
+
+      const actions = document.createElement("div");
+      actions.className = "expanded-actions";
+
+      if (item.link || item.sourceUrl || item.feedUrl) {
+        const link = document.createElement("a");
+        link.className = "tool-link";
+        link.href = item.link || item.sourceUrl || item.feedUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.textContent = "打开原文";
+        actions.append(link);
+      }
+
+      const markButton = document.createElement("button");
+      markButton.className = "tool-button";
+      markButton.type = "button";
+      markButton.dataset.toggleRead = item.id;
+      markButton.textContent = readItems.has(item.id) ? "标记未读" : "标记已读";
+      actions.append(markButton);
+
+      const content = document.createElement("div");
+      content.className = "entry-content";
+      content.innerHTML = item.contentHtml || '<p class="empty-state">这篇文章没有可显示的正文。</p>';
+
+      expanded.append(meta, title, actions, content);
+      return expanded;
+    }
+
+    function syncToolbarLinks(item) {
       openOriginal.href = item.link || item.sourceUrl || item.feedUrl;
-      toggleRead.textContent = readItems.has(item.id) ? "标记未读" : "标记已读";
-      articlePane.scrollTop = 0;
+      toggleActiveRead.textContent = readItems.has(item.id) ? "标记未读" : "标记已读";
     }
 
     function selectItem(id, markRead = true) {
@@ -738,8 +1018,10 @@ export function buildReaderHtml(readerItems, status) {
       }
 
       history.replaceState(null, "", "#" + encodeURIComponent(id));
-      renderArticle(item);
-      renderList();
+      syncToolbarLinks(item);
+      renderStream();
+      const active = [...stream.querySelectorAll(".entry")].find((entry) => entry.dataset.id === id);
+      if (active) active.scrollIntoView({ block: "nearest" });
     }
 
     function moveSelection(delta) {
@@ -749,33 +1031,61 @@ export function buildReaderHtml(readerItems, status) {
       if (visible[nextIndex]) selectItem(visible[nextIndex].id);
     }
 
-    list.addEventListener("click", (event) => {
-      const row = event.target.closest(".item-row");
+    stream.addEventListener("click", (event) => {
+      const toggle = event.target.closest("[data-toggle-read]");
+      if (toggle) {
+        event.stopPropagation();
+        toggleReadState(toggle.dataset.toggleRead);
+        return;
+      }
+
+      const row = event.target.closest(".entry-summary");
       if (row) selectItem(row.dataset.id);
     });
 
     search.addEventListener("input", () => {
       query = search.value;
-      renderList();
+      renderStream();
+    });
+    document.querySelector(".search-form").addEventListener("submit", (event) => {
+      event.preventDefault();
     });
 
-    for (const button of document.querySelectorAll(".filter-button")) {
+    for (const button of document.querySelectorAll("[data-filter]")) {
       button.addEventListener("click", () => {
         filter = button.dataset.filter;
-        document.querySelectorAll(".filter-button").forEach((item) => {
-          item.classList.toggle("active", item === button);
-        });
-        renderList();
+        renderStream();
       });
     }
 
-    toggleRead.addEventListener("click", () => {
-      if (!activeId) return;
-      if (readItems.has(activeId)) readItems.delete(activeId);
-      else readItems.add(activeId);
+    sourceList.addEventListener("click", (event) => {
+      const button = event.target.closest(".source-item");
+      if (!button) return;
+      sourceFilter = button.dataset.source || "";
+      sourceFilterName = button.querySelector(".source-name")?.textContent || "";
+      renderStream();
+    });
+
+    function toggleReadState(id) {
+      if (!id) return;
+      if (readItems.has(id)) readItems.delete(id);
+      else readItems.add(id);
       persistReadItems();
-      renderArticle(byId.get(activeId));
-      renderList();
+      syncToolbarLinks(byId.get(activeId));
+      renderStream();
+    }
+
+    toggleActiveRead.addEventListener("click", () => {
+      toggleReadState(activeId);
+    });
+
+    markVisibleRead.addEventListener("click", () => {
+      for (const item of visibleItems()) {
+        readItems.add(item.id);
+      }
+      persistReadItems();
+      syncToolbarLinks(byId.get(activeId));
+      renderStream();
     });
 
     document.addEventListener("keydown", (event) => {
@@ -790,10 +1100,14 @@ export function buildReaderHtml(readerItems, status) {
       }
     });
 
+    renderSources();
     if (items.length > 0) {
-      selectItem(byId.has(activeId) ? activeId : items[0].id, false);
+      const initial = byId.has(activeId) ? activeId : items[0].id;
+      activeId = initial;
+      syncToolbarLinks(byId.get(initial));
+      renderStream();
     } else {
-      renderList();
+      renderStream();
     }
   </script>
 </body>
