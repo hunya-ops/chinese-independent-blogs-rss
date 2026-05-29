@@ -11,6 +11,7 @@ import {
   dedupeAndSortItems,
   writeJson,
 } from "../src/output.js";
+import { buildReaderHtml, buildReaderItems } from "../src/reader.js";
 import { truncate } from "../src/utils.js";
 
 async function readJson(filePath, fallback) {
@@ -124,6 +125,9 @@ async function main() {
   await writeJson(statePath, nextState);
   await writeJson(path.join(CONFIG.outDir, "status.json"), status);
   await writeFile(path.join(CONFIG.outDir, "all.xml"), buildRss(allItems, status));
+  const readerItems = buildReaderItems(allItems);
+  await writeJson(path.join(CONFIG.outDir, "items.json"), readerItems);
+  await writeFile(path.join(CONFIG.outDir, "index.html"), buildReaderHtml(readerItems, status));
 
   console.log(
     `Done: ${allItems.length} items, ${status.summary.ok} ok, ${status.summary.notModified} not modified, ${status.summary.timeout} timeouts, ${status.summary.error} errors.`,

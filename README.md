@@ -7,6 +7,8 @@ Aggregate recent posts from [timqian/chinese-independent-blogs](https://github.c
 The scheduled job writes static files under `public/`:
 
 - `all.xml` - aggregated RSS feed.
+- `index.html` - lightweight web reader for the aggregated posts.
+- `items.json` - sanitized article data used by the web reader.
 - `feeds.opml` - source feed list for RSS readers.
 - `feeds.json` - normalized source feed metadata.
 - `feeds.txt` - one feed URL per line.
@@ -40,5 +42,6 @@ Useful environment variables:
 Enable GitHub Pages for the repository and publish from the `public/` directory using the included workflow. The feed will be available at:
 
 ```text
+https://hunya-ops.github.io/chinese-independent-blogs-rss/
 https://hunya-ops.github.io/chinese-independent-blogs-rss/all.xml
 ```
