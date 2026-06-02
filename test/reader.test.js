@@ -68,6 +68,8 @@ test("buildReaderHtml embeds escaped JSON payload", () => {
   assert.match(html, /expanded-sticky/);
   assert.match(html, /position: sticky/);
   assert.match(html, /retainedUnreadId/);
+  assert.match(html, /clearRetained = false/);
+  assert.match(html, /id === retainedUnreadId/);
   assert.match(html, /grid-template-rows: auto auto auto auto minmax\(0, 1fr\)/);
   assert.doesNotMatch(html, /<\/script><script>alert/);
 });

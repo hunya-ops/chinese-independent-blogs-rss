@@ -1284,8 +1284,8 @@ export function buildReaderHtml(readerItems, status) {
       history.replaceState(null, "", location.pathname + location.search);
     }
 
-    function collapseItem() {
-      retainedUnreadId = "";
+    function collapseItem({ clearRetained = false } = {}) {
+      if (clearRetained) retainedUnreadId = "";
       activeId = "";
       clearLocationHash();
       syncToolbarLinks(null);
@@ -1296,7 +1296,8 @@ export function buildReaderHtml(readerItems, status) {
       const item = byId.get(id);
       if (!item) return;
 
-      const shouldRetainInUnread = markRead && filter === "unread" && !readItems.has(id);
+      const shouldRetainInUnread =
+        filter === "unread" && (id === retainedUnreadId || (markRead && !readItems.has(id)));
       retainedUnreadId = shouldRetainInUnread ? id : "";
       activeId = id;
       if (markRead) {
