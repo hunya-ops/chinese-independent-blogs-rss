@@ -70,5 +70,6 @@ export function normalizeItem(raw, feed) {
     sourceUrl: feed.siteUrl,
     feedUrl: feed.feedUrl,
     tags: Array.isArray(feed.tags) ? feed.tags : [],
+    contentQuality: raw.contentQuality,
   };
 }

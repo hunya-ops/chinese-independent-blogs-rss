@@ -14,8 +14,11 @@ The scheduled job writes static files under `public/`:
 - `feeds.txt` - one feed URL per line.
 - `missing.json` - blogs without a feed URL in the upstream list.
 - `status.json` - crawl health for each source feed.
+- `quality-summary.json` - feed-level quality summary.
 
 State is stored in `data/state.json` so scheduled runs can reuse `ETag`, `Last-Modified`, and recent items from feeds that return `304 Not Modified` or temporarily fail. The GitHub Actions workflow keeps `data/` in Actions cache and publishes `public/` through a Pages artifact, so generated files are not committed back into Git history.
+
+Feed-level quality summaries are also written to `data/quality-summary.json` and committed by the scheduled workflow. This keeps the long-term quality baseline durable without committing large article caches or generated reader payloads.
 
 ## Local Usage
 

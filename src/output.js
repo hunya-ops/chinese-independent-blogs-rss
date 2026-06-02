@@ -103,6 +103,11 @@ export function buildStatus({ registry, crawlResults, outputItemCount, startedAt
     notModified: 0,
     timeout: 0,
     error: 0,
+    quality: {
+      high: 0,
+      medium: 0,
+      low: 0,
+    },
   };
 
   const feeds = crawlResults.map((result) => {
@@ -110,6 +115,10 @@ export function buildStatus({ registry, crawlResults, outputItemCount, startedAt
     else if (result.lastStatus === "not-modified") summary.notModified += 1;
     else if (result.lastStatus === "timeout") summary.timeout += 1;
     else summary.error += 1;
+
+    if (result.feedQuality?.level) {
+      summary.quality[result.feedQuality.level] += 1;
+    }
 
     return {
       title: result.feed.title,
@@ -121,6 +130,7 @@ export function buildStatus({ registry, crawlResults, outputItemCount, startedAt
       lastSuccessAt: result.lastSuccessAt,
       itemCount: result.items.length,
       failureCount: result.failureCount,
+      feedQuality: result.feedQuality,
     };
   });
 

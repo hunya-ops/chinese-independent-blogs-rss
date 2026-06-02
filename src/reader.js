@@ -111,6 +111,7 @@ export function buildReaderItems(items) {
       sourceUrl: safeWebUrl(item.sourceUrl),
       feedUrl: safeWebUrl(item.feedUrl),
       tags: item.tags,
+      contentQuality: item.contentQuality,
       summary: truncate(toPlainText(summarySource), 220),
       contentHtml,
     };
@@ -270,6 +271,21 @@ export function buildReaderHtml(readerItems, status) {
       border-bottom: 1px solid var(--line);
     }
 
+    .filter-section {
+      padding: 10px 10px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .filter-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 8px 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
     .nav-item,
     .source-item,
     .tool-button {
@@ -293,7 +309,9 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     .nav-item.active,
-    .source-item.active {
+    .source-item.active,
+    .quality-item.active,
+    .date-item.active {
       background: var(--blue-soft);
       color: #174d82;
       font-weight: 700;
@@ -303,6 +321,30 @@ export function buildReaderHtml(readerItems, status) {
       color: var(--muted);
       font-size: 12px;
       font-weight: 400;
+    }
+
+    .quality-item,
+    .date-item {
+      width: 100%;
+      height: 25px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 2px;
+      background: transparent;
+      color: #394150;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .quality-label,
+    .date-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .sidebar-meta {
@@ -454,7 +496,7 @@ export function buildReaderHtml(readerItems, status) {
       width: 100%;
       min-height: 32px;
       display: grid;
-      grid-template-columns: 14px minmax(110px, 180px) minmax(0, 1fr) 72px;
+      grid-template-columns: 14px minmax(110px, 180px) minmax(0, 1fr) 76px 72px;
       align-items: center;
       gap: 8px;
       padding: 0 12px;
@@ -493,6 +535,7 @@ export function buildReaderHtml(readerItems, status) {
 
     .entry-source,
     .entry-title,
+    .entry-quality,
     .entry-date {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -508,6 +551,12 @@ export function buildReaderHtml(readerItems, status) {
     .entry-title {
       font-weight: 700;
       line-height: 1.25;
+    }
+
+    .entry-quality {
+      color: #b05b00;
+      font-size: 12px;
+      text-align: right;
     }
 
     .entry-date {
@@ -659,7 +708,8 @@ export function buildReaderHtml(readerItems, status) {
         grid-template-columns: 12px minmax(0, 1fr) 58px;
       }
 
-      .entry-source {
+      .entry-source,
+      .entry-quality {
         display: none;
       }
 
@@ -699,6 +749,36 @@ export function buildReaderHtml(readerItems, status) {
           <span>已读文章</span><span class="nav-count" id="read-count"></span>
         </button>
       </div>
+      <div class="filter-section">
+        <div class="filter-heading"><span>质量</span><span id="quality-total"></span></div>
+        <button class="quality-item active" type="button" data-quality="all">
+          <span class="quality-label">全部质量</span><span class="nav-count" id="quality-all-count"></span>
+        </button>
+        <button class="quality-item" type="button" data-quality="high">
+          <span class="quality-label">高分</span><span class="nav-count" id="quality-high-count"></span>
+        </button>
+        <button class="quality-item" type="button" data-quality="medium">
+          <span class="quality-label">中分</span><span class="nav-count" id="quality-medium-count"></span>
+        </button>
+        <button class="quality-item" type="button" data-quality="low">
+          <span class="quality-label">低分</span><span class="nav-count" id="quality-low-count"></span>
+        </button>
+      </div>
+      <div class="filter-section">
+        <div class="filter-heading"><span>时间</span><span id="date-total"></span></div>
+        <button class="date-item active" type="button" data-date="all">
+          <span class="date-label">全部时间</span><span class="nav-count" id="date-all-count"></span>
+        </button>
+        <button class="date-item" type="button" data-date="today">
+          <span class="date-label">今日</span><span class="nav-count" id="date-today-count"></span>
+        </button>
+        <button class="date-item" type="button" data-date="week">
+          <span class="date-label">本周</span><span class="nav-count" id="date-week-count"></span>
+        </button>
+        <button class="date-item" type="button" data-date="month">
+          <span class="date-label">本月</span><span class="nav-count" id="date-month-count"></span>
+        </button>
+      </div>
       <div class="sidebar-meta">
         <div id="visible-count"></div>
         <div id="crawl-summary"></div>
@@ -718,6 +798,11 @@ export function buildReaderHtml(readerItems, status) {
         <button class="tool-button" type="button" data-filter="unread">未读</button>
         <button class="tool-button" type="button" data-filter="read">已读</button>
         <span class="tool-spacer"></span>
+        <button class="tool-button active" type="button" data-date="all">全部时间</button>
+        <button class="tool-button" type="button" data-date="today">今日</button>
+        <button class="tool-button" type="button" data-date="week">本周</button>
+        <button class="tool-button" type="button" data-date="month">本月</button>
+        <span class="tool-spacer"></span>
         <button id="mark-visible-read" class="tool-button" type="button">当前列表标为已读</button>
         <button id="toggle-active-read" class="tool-button" type="button">标记未读</button>
         <a id="open-original" class="tool-link" target="_blank" rel="noopener noreferrer">打开原文</a>
@@ -736,6 +821,8 @@ export function buildReaderHtml(readerItems, status) {
 
     let activeId = decodeURIComponent(location.hash.slice(1)) || items[0]?.id || "";
     let filter = "all";
+    let qualityFilter = "all";
+    let dateFilter = "all";
     let query = "";
     let sourceFilter = "";
     let sourceFilterName = "";
@@ -749,6 +836,16 @@ export function buildReaderHtml(readerItems, status) {
     const allCount = document.getElementById("all-count");
     const navUnreadCount = document.getElementById("nav-unread-count");
     const readCount = document.getElementById("read-count");
+    const qualityTotal = document.getElementById("quality-total");
+    const qualityAllCount = document.getElementById("quality-all-count");
+    const qualityHighCount = document.getElementById("quality-high-count");
+    const qualityMediumCount = document.getElementById("quality-medium-count");
+    const qualityLowCount = document.getElementById("quality-low-count");
+    const dateTotal = document.getElementById("date-total");
+    const dateAllCount = document.getElementById("date-all-count");
+    const dateTodayCount = document.getElementById("date-today-count");
+    const dateWeekCount = document.getElementById("date-week-count");
+    const dateMonthCount = document.getElementById("date-month-count");
     const sourceTotal = document.getElementById("source-total");
     const sourceList = document.getElementById("source-list");
     const updatedAt = document.getElementById("updated-at");
@@ -769,6 +866,44 @@ export function buildReaderHtml(readerItems, status) {
 
     function sourceKey(item) {
       return item.feedUrl || item.sourceUrl || item.sourceTitle || "unknown";
+    }
+
+    function qualityLevel(item) {
+      return item.contentQuality?.level || "low";
+    }
+
+    function qualityStars(item) {
+      return item.contentQuality?.stars || 1;
+    }
+
+    function itemTimeMs(item) {
+      if (!item.publishedAt) return 0;
+      const time = new Date(item.publishedAt).getTime();
+      return Number.isFinite(time) ? time : 0;
+    }
+
+    function startOfToday(now) {
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    }
+
+    function startOfWeek(now) {
+      const day = now.getDay() || 7;
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1).getTime();
+    }
+
+    function startOfMonth(now) {
+      return new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    }
+
+    function matchesDateFilter(item) {
+      if (dateFilter === "all") return true;
+      const now = new Date();
+      const time = itemTimeMs(item);
+      if (!time || time > now.getTime()) return false;
+      if (dateFilter === "today") return time >= startOfToday(now);
+      if (dateFilter === "week") return time >= startOfWeek(now);
+      if (dateFilter === "month") return time >= startOfMonth(now);
+      return true;
     }
 
     function sourceStats() {
@@ -792,6 +927,8 @@ export function buildReaderHtml(readerItems, status) {
         const isRead = readItems.has(item.id);
         if (filter === "read" && !isRead) return false;
         if (filter === "unread" && isRead) return false;
+        if (qualityFilter !== "all" && qualityLevel(item) !== qualityFilter) return false;
+        if (!matchesDateFilter(item)) return false;
         if (sourceFilter && sourceKey(item) !== sourceFilter) return false;
         if (!q) return true;
         return [
@@ -808,17 +945,61 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     function renderStats(visible) {
-      const unread = items.length - readItems.size;
+      const readInCurrentItems = items.filter((item) => readItems.has(item.id)).length;
+      const unread = items.length - readInCurrentItems;
       const filterTitles = {
         all: "所有文章",
         unread: "未读文章",
         read: "已读文章",
       };
+      const qualityTitles = {
+        all: "",
+        high: "高分",
+        medium: "中分",
+        low: "低分",
+      };
+      const dateTitles = {
+        all: "",
+        today: "今日",
+        week: "本周",
+        month: "本月",
+      };
+      const qualityCounts = { high: 0, medium: 0, low: 0 };
+      const dateCounts = { today: 0, week: 0, month: 0 };
+      const now = new Date();
+      const nowMs = now.getTime();
+      const todayStart = startOfToday(now);
+      const weekStart = startOfWeek(now);
+      const monthStart = startOfMonth(now);
 
-      viewTitle.textContent = sourceFilter ? sourceFilterName : filterTitles[filter];
+      for (const item of items) {
+        qualityCounts[qualityLevel(item)] += 1;
+        const time = itemTimeMs(item);
+        if (time && time <= nowMs) {
+          if (time >= todayStart) dateCounts.today += 1;
+          if (time >= weekStart) dateCounts.week += 1;
+          if (time >= monthStart) dateCounts.month += 1;
+        }
+      }
+
+      const titleParts = [sourceFilter ? sourceFilterName : filterTitles[filter]];
+      if (qualityTitles[qualityFilter]) titleParts.push(qualityTitles[qualityFilter]);
+      if (dateTitles[dateFilter]) titleParts.push(dateTitles[dateFilter]);
+
+      viewTitle.textContent = titleParts.join(" / ");
       allCount.textContent = String(items.length);
       navUnreadCount.textContent = String(unread);
-      readCount.textContent = String(readItems.size);
+      readCount.textContent = String(readInCurrentItems);
+      qualityTotal.textContent = String(items.length);
+      qualityAllCount.textContent = String(items.length);
+      qualityHighCount.textContent = String(qualityCounts.high);
+      qualityMediumCount.textContent = String(qualityCounts.medium);
+      qualityLowCount.textContent = String(qualityCounts.low);
+      dateTotal.textContent = String(items.length);
+      dateAllCount.textContent = String(items.length);
+      dateTodayCount.textContent = String(dateCounts.today);
+      dateWeekCount.textContent = String(dateCounts.week);
+      dateMonthCount.textContent = String(dateCounts.month);
       visibleCount.textContent = visible.length + " 篇可见，" + unread + " 篇未读";
       viewMeta.textContent = visible.length + " 篇";
       crawlSummary.textContent = status.summary
@@ -833,6 +1014,12 @@ export function buildReaderHtml(readerItems, status) {
     function setActiveClasses() {
       document.querySelectorAll("[data-filter]").forEach((button) => {
         button.classList.toggle("active", button.dataset.filter === filter);
+      });
+      document.querySelectorAll("[data-quality]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.quality === qualityFilter);
+      });
+      document.querySelectorAll("[data-date]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.date === dateFilter);
       });
       document.querySelectorAll(".source-item").forEach((button) => {
         button.classList.toggle("active", button.dataset.source === sourceFilter);
@@ -907,11 +1094,16 @@ export function buildReaderHtml(readerItems, status) {
         title.className = "entry-title";
         title.textContent = item.title;
 
+        const quality = document.createElement("span");
+        quality.className = "entry-quality";
+        quality.title = "质量分 " + (item.contentQuality?.score ?? 0);
+        quality.textContent = "★ " + qualityStars(item);
+
         const date = document.createElement("span");
         date.className = "entry-date";
         date.textContent = formatDate(item.publishedAt, { month: "2-digit", day: "2-digit" });
 
-        header.append(dot, source, title, date);
+        header.append(dot, source, title, quality, date);
         entry.append(header);
 
         if (item.id === activeId) {
@@ -969,6 +1161,14 @@ export function buildReaderHtml(readerItems, status) {
       }
       if (item.author) appendMetaPart(meta, document.createTextNode(item.author));
       if (published) appendMetaPart(meta, document.createTextNode(published));
+      if (item.contentQuality) {
+        appendMetaPart(
+          meta,
+          document.createTextNode(
+            "质量 " + item.contentQuality.score + " / " + item.contentQuality.stars + "星",
+          ),
+        );
+      }
 
       const title = document.createElement("h1");
       title.className = "expanded-title";
@@ -1054,6 +1254,20 @@ export function buildReaderHtml(readerItems, status) {
     for (const button of document.querySelectorAll("[data-filter]")) {
       button.addEventListener("click", () => {
         filter = button.dataset.filter;
+        renderStream();
+      });
+    }
+
+    for (const button of document.querySelectorAll("[data-quality]")) {
+      button.addEventListener("click", () => {
+        qualityFilter = button.dataset.quality;
+        renderStream();
+      });
+    }
+
+    for (const button of document.querySelectorAll("[data-date]")) {
+      button.addEventListener("click", () => {
+        dateFilter = button.dataset.date;
         renderStream();
       });
     }

@@ -11,6 +11,7 @@ import {
   dedupeAndSortItems,
   writeJson,
 } from "../src/output.js";
+import { addQualityToItems, buildQualitySummary, summarizeFeedQuality } from "../src/quality.js";
 import { buildReaderHtml, buildReaderItems } from "../src/reader.js";
 import { truncate } from "../src/utils.js";
 
@@ -79,11 +80,21 @@ async function main() {
     ),
   );
 
+  const qualityCrawlResults = crawlResults.map((result) => {
+    const items = addQualityToItems(result.items);
+    return {
+      ...result,
+      items,
+      feedQuality: summarizeFeedQuality(items),
+    };
+  });
+
   const allItems = dedupeAndSortItems(
-    crawlResults.flatMap((result) => result.items),
+    qualityCrawlResults.flatMap((result) => result.items),
     CONFIG.maxOutputItems,
   );
   const updatedAt = new Date().toISOString();
+  const qualitySummary = buildQualitySummary(registry, qualityCrawlResults);
 
   const nextState = {
     version: 1,
@@ -91,7 +102,7 @@ async function main() {
     startedAt,
     updatedAt,
     feeds: Object.fromEntries(
-      crawlResults.map((result) => [
+      qualityCrawlResults.map((result) => [
         result.feed.feedUrl,
         {
           title: result.feed.title,
@@ -105,6 +116,7 @@ async function main() {
           lastStatus: result.lastStatus,
           lastError: result.lastError ?? null,
           failureCount: result.failureCount,
+          feedQuality: result.feedQuality,
           items: result.items.slice(0, CONFIG.maxItemsPerFeed).map((item) => ({
             ...item,
             content: truncate(item.content, CONFIG.maxStateContentChars),
@@ -116,13 +128,15 @@ async function main() {
 
   const status = buildStatus({
     registry,
-    crawlResults,
+    crawlResults: qualityCrawlResults,
     outputItemCount: allItems.length,
     startedAt,
     updatedAt,
   });
 
   await writeJson(statePath, nextState);
+  await writeFile(path.join(CONFIG.dataDir, "quality-summary.json"), `${JSON.stringify(qualitySummary)}\n`);
+  await writeJson(path.join(CONFIG.outDir, "quality-summary.json"), qualitySummary);
   await writeJson(path.join(CONFIG.outDir, "status.json"), status);
   await writeFile(path.join(CONFIG.outDir, "all.xml"), buildRss(allItems, status));
   const readerItems = buildReaderItems(allItems);
