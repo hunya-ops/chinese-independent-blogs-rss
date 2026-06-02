@@ -27,6 +27,14 @@ npm install
 npm run update
 ```
 
+To rebuild only the web reader from cached `public/items.json` and `public/status.json`:
+
+```sh
+npm run render:reader
+```
+
+The GitHub Actions workflow uses that lighter path for reader-only pushes, so frontend template changes do not refetch every source feed when cached output is available. Scheduled and manual runs still perform the full RSS crawl.
+
 Useful environment variables:
 
 | Variable | Default | Purpose |

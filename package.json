@@ -6,7 +6,8 @@
   "description": "Aggregate posts from timqian/chinese-independent-blogs into a single RSS feed.",
   "scripts": {
     "update": "node scripts/update.js",
-    "lint": "node --check scripts/update.js && node --check src/*.js",
+    "render:reader": "node scripts/render-reader.js",
+    "lint": "node --check scripts/*.js && node --check src/*.js",
     "test": "node --test test/*.test.js"
   },
   "dependencies": {
