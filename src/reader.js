@@ -591,18 +591,39 @@ export function buildReaderHtml(readerItems, status) {
       line-height: 1.5;
     }
 
+    .expanded-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      margin: -14px -20px 16px -214px;
+      padding: 10px 20px 10px 214px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+    }
+
+    .expanded-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 5px;
+    }
+
     .expanded-title {
-      margin: 7px 0 10px;
-      font-size: 21px;
+      min-width: 0;
+      margin: 0;
+      font-size: 19px;
       line-height: 1.28;
       font-weight: 700;
     }
 
     .expanded-actions {
+      flex: 0 0 auto;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 0 0 16px;
+      justify-content: flex-end;
     }
 
     .entry-content {
@@ -721,6 +742,20 @@ export function buildReaderHtml(readerItems, status) {
 
       .entry-expanded {
         padding: 14px 16px 26px;
+      }
+
+      .expanded-sticky {
+        margin: -14px -16px 16px;
+        padding: 10px 16px;
+      }
+
+      .expanded-title-row {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .expanded-actions {
+        justify-content: flex-start;
       }
 
       .toolbar {
@@ -1152,6 +1187,9 @@ export function buildReaderHtml(readerItems, status) {
       const expanded = document.createElement("div");
       expanded.className = "entry-expanded";
 
+      const sticky = document.createElement("div");
+      sticky.className = "expanded-sticky";
+
       const meta = document.createElement("div");
       meta.className = "expanded-meta";
       const published = formatDate(item.publishedAt, {
@@ -1187,6 +1225,9 @@ export function buildReaderHtml(readerItems, status) {
       title.className = "expanded-title";
       title.textContent = item.title;
 
+      const titleRow = document.createElement("div");
+      titleRow.className = "expanded-title-row";
+
       const actions = document.createElement("div");
       actions.className = "expanded-actions";
 
@@ -1218,7 +1259,9 @@ export function buildReaderHtml(readerItems, status) {
       content.className = "entry-content";
       content.innerHTML = item.contentHtml || '<p class="empty-state">这篇文章没有可显示的正文。</p>';
 
-      expanded.append(meta, title, actions, content);
+      titleRow.append(title, actions);
+      sticky.append(meta, titleRow);
+      expanded.append(sticky, content);
       return expanded;
     }
 
