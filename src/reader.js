@@ -470,6 +470,12 @@ export function buildReaderHtml(readerItems, status) {
       font-weight: 700;
     }
 
+    .tool-button:disabled {
+      color: #9aa2ad;
+      cursor: default;
+      opacity: 0.65;
+    }
+
     .tool-spacer {
       flex: 0 0 auto;
       width: 1px;
@@ -805,6 +811,7 @@ export function buildReaderHtml(readerItems, status) {
         <span class="tool-spacer"></span>
         <button id="mark-visible-read" class="tool-button" type="button">当前列表标为已读</button>
         <button id="toggle-active-read" class="tool-button" type="button">标记未读</button>
+        <button id="collapse-active" class="tool-button" type="button">收起</button>
         <a id="open-original" class="tool-link" target="_blank" rel="noopener noreferrer">打开原文</a>
       </div>
       <div id="stream" class="stream" role="list"></div>
@@ -852,6 +859,7 @@ export function buildReaderHtml(readerItems, status) {
     const openOriginal = document.getElementById("open-original");
     const markVisibleRead = document.getElementById("mark-visible-read");
     const toggleActiveRead = document.getElementById("toggle-active-read");
+    const collapseActive = document.getElementById("collapse-active");
 
     function persistReadItems() {
       localStorage.setItem(readKey, JSON.stringify([...readItems].slice(-5000)));
@@ -1068,6 +1076,12 @@ export function buildReaderHtml(readerItems, status) {
 
     function renderStream() {
       const visible = visibleItems();
+      if (activeId && !visible.some((item) => item.id === activeId)) {
+        activeId = "";
+        clearLocationHash();
+        syncToolbarLinks(null);
+      }
+
       const fragment = document.createDocumentFragment();
 
       for (const item of visible) {
@@ -1123,8 +1137,6 @@ export function buildReaderHtml(readerItems, status) {
         empty.textContent = "没有可显示的文章";
         stream.replaceChildren(empty);
         openOriginal.removeAttribute("href");
-      } else if (!visible.some((item) => item.id === activeId)) {
-        selectItem(visible[0].id, false);
       }
     }
 
@@ -1194,6 +1206,13 @@ export function buildReaderHtml(readerItems, status) {
       markButton.textContent = readItems.has(item.id) ? "标记未读" : "标记已读";
       actions.append(markButton);
 
+      const collapseButton = document.createElement("button");
+      collapseButton.className = "tool-button";
+      collapseButton.type = "button";
+      collapseButton.dataset.collapse = item.id;
+      collapseButton.textContent = "收起";
+      actions.append(collapseButton);
+
       const content = document.createElement("div");
       content.className = "entry-content";
       content.innerHTML = item.contentHtml || '<p class="empty-state">这篇文章没有可显示的正文。</p>';
@@ -1203,8 +1222,29 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     function syncToolbarLinks(item) {
+      if (!item) {
+        openOriginal.removeAttribute("href");
+        toggleActiveRead.disabled = true;
+        collapseActive.disabled = true;
+        toggleActiveRead.textContent = "标记已读";
+        return;
+      }
+
       openOriginal.href = item.link || item.sourceUrl || item.feedUrl;
+      toggleActiveRead.disabled = false;
+      collapseActive.disabled = false;
       toggleActiveRead.textContent = readItems.has(item.id) ? "标记未读" : "标记已读";
+    }
+
+    function clearLocationHash() {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+
+    function collapseItem() {
+      activeId = "";
+      clearLocationHash();
+      syncToolbarLinks(null);
+      renderStream();
     }
 
     function selectItem(id, markRead = true) {
@@ -1239,8 +1279,18 @@ export function buildReaderHtml(readerItems, status) {
         return;
       }
 
+      const collapse = event.target.closest("[data-collapse]");
+      if (collapse) {
+        event.stopPropagation();
+        collapseItem();
+        return;
+      }
+
       const row = event.target.closest(".entry-summary");
-      if (row) selectItem(row.dataset.id);
+      if (row) {
+        if (row.dataset.id === activeId) collapseItem();
+        else selectItem(row.dataset.id);
+      }
     });
 
     search.addEventListener("input", () => {
@@ -1293,6 +1343,10 @@ export function buildReaderHtml(readerItems, status) {
       toggleReadState(activeId);
     });
 
+    collapseActive.addEventListener("click", () => {
+      collapseItem();
+    });
+
     markVisibleRead.addEventListener("click", () => {
       for (const item of visibleItems()) {
         readItems.add(item.id);
@@ -1316,11 +1370,11 @@ export function buildReaderHtml(readerItems, status) {
 
     renderSources();
     if (items.length > 0) {
-      const initial = byId.has(activeId) ? activeId : items[0].id;
-      activeId = initial;
-      syncToolbarLinks(byId.get(initial));
+      activeId = byId.has(activeId) ? activeId : "";
+      syncToolbarLinks(byId.get(activeId));
       renderStream();
     } else {
+      syncToolbarLinks(null);
       renderStream();
     }
   </script>
