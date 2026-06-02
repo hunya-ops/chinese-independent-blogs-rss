@@ -833,6 +833,7 @@ export function buildReaderHtml(readerItems, status) {
     let query = "";
     let sourceFilter = "";
     let sourceFilterName = "";
+    let retainedUnreadId = "";
 
     const stream = document.getElementById("stream");
     const search = document.getElementById("search");
@@ -934,7 +935,7 @@ export function buildReaderHtml(readerItems, status) {
       return items.filter((item) => {
         const isRead = readItems.has(item.id);
         if (filter === "read" && !isRead) return false;
-        if (filter === "unread" && isRead) return false;
+        if (filter === "unread" && isRead && item.id !== retainedUnreadId) return false;
         if (qualityFilter !== "all" && qualityLevel(item) !== qualityFilter) return false;
         if (!matchesDateFilter(item)) return false;
         if (sourceFilter && sourceKey(item) !== sourceFilter) return false;
@@ -1241,6 +1242,7 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     function collapseItem() {
+      retainedUnreadId = "";
       activeId = "";
       clearLocationHash();
       syncToolbarLinks(null);
@@ -1251,6 +1253,8 @@ export function buildReaderHtml(readerItems, status) {
       const item = byId.get(id);
       if (!item) return;
 
+      const shouldRetainInUnread = markRead && filter === "unread" && !readItems.has(id);
+      retainedUnreadId = shouldRetainInUnread ? id : "";
       activeId = id;
       if (markRead) {
         readItems.add(id);
@@ -1294,6 +1298,7 @@ export function buildReaderHtml(readerItems, status) {
     });
 
     search.addEventListener("input", () => {
+      retainedUnreadId = "";
       query = search.value;
       renderStream();
     });
@@ -1303,6 +1308,7 @@ export function buildReaderHtml(readerItems, status) {
 
     for (const button of document.querySelectorAll("[data-filter]")) {
       button.addEventListener("click", () => {
+        retainedUnreadId = "";
         filter = button.dataset.filter;
         renderStream();
       });
@@ -1310,6 +1316,7 @@ export function buildReaderHtml(readerItems, status) {
 
     for (const button of document.querySelectorAll("[data-quality]")) {
       button.addEventListener("click", () => {
+        retainedUnreadId = "";
         qualityFilter = button.dataset.quality;
         renderStream();
       });
@@ -1317,6 +1324,7 @@ export function buildReaderHtml(readerItems, status) {
 
     for (const button of document.querySelectorAll("[data-date]")) {
       button.addEventListener("click", () => {
+        retainedUnreadId = "";
         dateFilter = button.dataset.date;
         renderStream();
       });
@@ -1325,6 +1333,7 @@ export function buildReaderHtml(readerItems, status) {
     sourceList.addEventListener("click", (event) => {
       const button = event.target.closest(".source-item");
       if (!button) return;
+      retainedUnreadId = "";
       sourceFilter = button.dataset.source || "";
       sourceFilterName = button.querySelector(".source-name")?.textContent || "";
       renderStream();
@@ -1332,8 +1341,13 @@ export function buildReaderHtml(readerItems, status) {
 
     function toggleReadState(id) {
       if (!id) return;
-      if (readItems.has(id)) readItems.delete(id);
-      else readItems.add(id);
+      if (readItems.has(id)) {
+        readItems.delete(id);
+        if (retainedUnreadId === id) retainedUnreadId = "";
+      } else {
+        readItems.add(id);
+        retainedUnreadId = filter === "unread" ? id : "";
+      }
       persistReadItems();
       syncToolbarLinks(byId.get(activeId));
       renderStream();
@@ -1348,6 +1362,7 @@ export function buildReaderHtml(readerItems, status) {
     });
 
     markVisibleRead.addEventListener("click", () => {
+      retainedUnreadId = "";
       for (const item of visibleItems()) {
         readItems.add(item.id);
       }
