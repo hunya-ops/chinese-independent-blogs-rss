@@ -261,7 +261,7 @@ export function buildReaderHtml(readerItems, status) {
       min-width: 0;
       min-height: 0;
       display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr);
+      grid-template-rows: auto auto auto auto minmax(0, 1fr);
       border-right: 1px solid var(--line);
       background: var(--sidebar);
     }
@@ -272,7 +272,7 @@ export function buildReaderHtml(readerItems, status) {
     }
 
     .filter-section {
-      padding: 10px 10px 8px;
+      padding: 8px 10px 7px;
       border-bottom: 1px solid var(--line);
     }
 

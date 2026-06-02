@@ -63,5 +63,6 @@ test("buildReaderHtml embeds escaped JSON payload", () => {
   assert.match(html, /class="stream"/);
   assert.match(html, /data-quality="high"/);
   assert.match(html, /data-date="today"/);
+  assert.match(html, /grid-template-rows: auto auto auto auto minmax\(0, 1fr\)/);
   assert.doesNotMatch(html, /<\/script><script>alert/);
 });
